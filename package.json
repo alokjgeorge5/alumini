@@ -1,0 +1,19 @@
+{
+  "name": "alumni-connect-platform",
+  "version": "1.0.0",
+  "description": "Alumni Connect & Scholarship Support Platform - A mini LinkedIn for alumni-student connections",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && python run.py",
+    "client:dev": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "setup": "cd client && npm install",
+    "db:setup": "mysql -u root -p < database/schema.sql"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["alumni", "scholarship", "mentorship", "career", "networking"],
+  "author": "Alumni Connect Team",
+  "license": "MIT"
+}
