@@ -53,66 +53,122 @@ This platform addresses the lack of centralized alumni-student interaction by pr
 
 ## 🔧 Installation & Setup
 
-### 1. Clone and Setup
+### Quick Start (Single Command)
+
+For new developers, you can get the entire application running with just one command:
+
 ```bash
 git clone <repository-url>
 cd alumni-connect-platform
-npm run setup
+
+# Create your environment file first
+cp backend/.env.example backend/.env
+# Edit backend/.env with your MySQL password
+
+# Start everything with one command
+npm start
 ```
 
-### 2. Database Setup
+This single command will:
+- Install all dependencies (Node.js and Python)
+- Set up and seed the MySQL database
+- Start both frontend and backend servers
+
+### Manual Setup (Alternative)
+
+If you prefer to set up components individually:
+
+#### 1. Prerequisites
+- Node.js 16+
+- Python 3.8+
+- MySQL 8.0+ (running)
+- npm or yarn
+
+#### 2. Environment Configuration
+
+Create your environment file:
 ```bash
-# Create MySQL database
-mysql -u root -p
-CREATE DATABASE alumni_connect;
-exit
-
-# Import schema
-npm run db:setup
+cp backend/.env.example backend/.env
 ```
 
-### 3. Environment Configuration
-
-Create `.env` files in both client and server directories:
-
-**server/.env:**
-```
+Edit `backend/.env` with your actual values:
+```env
 DATABASE_HOST=localhost
 DATABASE_USER=root
-DATABASE_PASSWORD=your_password
+DATABASE_PASSWORD=your_actual_mysql_password
 DATABASE_NAME=alumni_connect
-JWT_SECRET=your_jwt_secret_key
-FLASK_ENV=development
+JWT_SECRET_KEY=your_jwt_secret_key_here
 ```
 
-**client/.env:**
-```
-REACT_APP_API_URL=http://localhost:5000
-```
-
-### 4. Install Dependencies
-
-**Backend:**
+#### 3. Install Dependencies
 ```bash
-cd server
-pip install -r requirements.txt
+npm run install-deps
 ```
 
-**Frontend:**
+#### 4. Database Setup
 ```bash
-cd client
-npm install
+npm run db:reset
 ```
 
-### 5. Run the Application
+#### 5. Start Development Servers
 ```bash
-# Run both frontend and backend
+npm run dev
+```
+
+## 🚀 Available Scripts
+
+- `npm start` - **Single command setup and start** (recommended for new developers)
+- `npm run setup-and-start` - Same as `npm start`
+- `npm run dev` - Start both frontend and backend (assumes setup is done)
+- `npm run setup` - Install all dependencies and set up database
+- `npm run install-deps` - Install Node.js and Python dependencies only
+- `npm run db:reset` - Reset and seed the database
+- `npm run build` - Build frontend for production
+
+## 🔧 Development Workflow
+
+### For New Developers
+1. Clone the repository
+2. Copy `backend/.env.example` to `backend/.env`
+3. Update `DATABASE_PASSWORD` in `backend/.env`
+4. Run `npm start`
+5. Access the application at `http://localhost:3000`
+
+### For Existing Developers
+```bash
+# Just start the servers (if already set up)
 npm run dev
 
-# Or run separately:
-# Backend: npm run server:dev
-# Frontend: npm run client:dev
+# Reset database with fresh data
+npm run db:reset
+
+# Reinstall dependencies after pulling changes
+npm run install-deps
 ```
+
+## 🏥 Health Checks
+
+The setup script includes automatic health checks:
+- ✅ MySQL connection verification
+- ✅ Database creation confirmation
+- ✅ Table structure validation
+- ✅ Dependency installation verification
+
+## 🐛 Troubleshooting
+
+### Database Issues
+- **"MySQL connection failed"**: Ensure MySQL server is running
+- **"Access denied"**: Check DATABASE_PASSWORD in backend/.env
+- **"Database not found"**: The script will create it automatically
+
+### Permission Issues
+- Ensure your MySQL user has CREATE/DROP database privileges
+- On Windows, you may need to run the terminal as Administrator
+
+### Port Conflicts
+- Frontend runs on `http://localhost:3000`
+- Backend runs on `http://localhost:5000`
+- Ensure these ports are available
 
 ## 📁 Project Structure
 

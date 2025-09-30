@@ -7,11 +7,15 @@
     "server:dev": "cd backend && python run.py",
     "client:dev": "cd frontend && npm start",
     "build": "cd frontend && npm run build",
-    "setup": "cd frontend && npm install",
-    "db:setup": "mysql -u root -p < database/schema.sql"
+    "setup": "npm install && cd frontend && npm install && cd ../backend && pip install -r requirements.txt && cd .. && node scripts/setupDatabase.js",
+    "setup-and-start": "npm run setup && npm run dev",
+    "start": "npm run setup-and-start",
+    "db:reset": "node scripts/setupDatabase.js",
+    "install-deps": "npm install && cd frontend && npm install && cd ../backend && pip install -r requirements.txt && cd .."
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.3.1"
   },
   "keywords": ["alumni", "scholarship", "mentorship", "career", "networking"],
   "author": "Alumni Connect Team",
