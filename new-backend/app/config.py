@@ -14,6 +14,7 @@ def get_config():
         "SQLALCHEMY_DATABASE_URI": f"mysql+pymysql://{db['user']}:{db['password']}@{db['host']}:{db['port']}/{db['name']}",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "SECRET_KEY": os.getenv("SECRET_KEY", "dev-secret"),
+        "JWT_SECRET_KEY": os.getenv("JWT_SECRET_KEY", "jwt-secret"),
     }
 
 
