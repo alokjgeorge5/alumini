@@ -102,17 +102,11 @@ export default function App() {
 
   if (!hasToken) {
     return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="*" element={<Login onLoginSuccess={() => setHasToken(true)} />} />
-        </Routes>
-      </BrowserRouter>
+      <Routes>
+        <Route path="*" element={<Login onLoginSuccess={() => setHasToken(true)} />} />
+      </Routes>
     )
   }
 
-  return (
-    <BrowserRouter>
-      <ProtectedApp />
-    </BrowserRouter>
-  )
+  return <ProtectedApp />
 }

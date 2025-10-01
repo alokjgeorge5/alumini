@@ -1,10 +1,23 @@
-﻿import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [backendStatus, setBackendStatus] = useState('checking...');
+
+  useEffect(() => {
+    // Check backend health on component mount
+    fetch('/api/health')
+      .then(response => response.json())
+      .then(data => {
+        setBackendStatus(data.status === 'ok' ? 'online' : 'degraded');
+      })
+      .catch(() => {
+        setBackendStatus('offline');
+      });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,10 +31,33 @@ export default function Login({ onLoginSuccess }) {
         body: JSON.stringify({ email, password })
       });
 
-      const data = await response.json();
-
+      // Check if response is ok before trying to parse JSON
       if (!response.ok) {
-        setError(data.error || 'Login failed');
+        let errorMessage = 'Login failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
+
+      // Debug: Log response details
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        setError('Invalid response from server');
         setLoading(false);
         return;
       }
@@ -33,6 +69,7 @@ export default function Login({ onLoginSuccess }) {
         onLoginSuccess();
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError('Connection error: ' + err.message);
       setLoading(false);
     }
@@ -44,6 +81,13 @@ export default function Login({ onLoginSuccess }) {
         <div className="login-header">
           <div className="login-logo">Alumni Connect</div>
           <div className="login-subtitle">Connect with your professional network</div>
+          <div style={{ 
+            fontSize: '12px', 
+            color: backendStatus === 'online' ? '#28a745' : '#dc3545',
+            marginTop: '8px'
+          }}>
+            Backend: {backendStatus}
+          </div>
         </div>
         
         <form onSubmit={handleSubmit}>

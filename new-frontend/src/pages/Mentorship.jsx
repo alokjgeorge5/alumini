@@ -7,15 +7,14 @@ export default function Mentorship() {
   const [showRequestForm, setShowRequestForm] = useState(false)
   const [newRequest, setNewRequest] = useState({
     mentor_id: '',
-    message: '',
-    preferred_time: '',
-    goals: ''
+    subject: '',
+    message: ''
   })
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/mentorship/requests').then(r => r.json()).catch(() => []),
+      fetch('/api/mentorship/').then(r => r.json()).catch(() => []),
       fetch('/api/users/alumni').then(r => r.json()).catch(() => [])
     ]).then(([mentorshipRequests, alumniList]) => {
       setRequests(mentorshipRequests)
@@ -33,7 +32,7 @@ export default function Mentorship() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('/api/mentorship/requests', {
+      const response = await fetch('/api/mentorship/request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,9 +44,9 @@ export default function Mentorship() {
       if (response.ok) {
         alert('Mentorship request submitted successfully!')
         setShowRequestForm(false)
-        setNewRequest({ mentor_id: '', message: '', preferred_time: '', goals: '' })
+        setNewRequest({ mentor_id: '', subject: '', message: '' })
         // Refresh requests
-        fetch('/api/mentorship/requests').then(r => r.json()).then(setRequests)
+        fetch('/api/mentorship/').then(r => r.json()).then(setRequests)
       } else {
         const error = await response.json()
         alert('Error: ' + (error.error || 'Failed to submit request'))
@@ -60,7 +59,7 @@ export default function Mentorship() {
   const handleStatusUpdate = async (requestId, status) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`/api/mentorship/requests/${requestId}`, {
+      const response = await fetch(`/api/mentorship/${requestId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +71,7 @@ export default function Mentorship() {
       if (response.ok) {
         alert(`Request ${status} successfully!`)
         // Refresh requests
-        fetch('/api/mentorship/requests').then(r => r.json()).then(setRequests)
+        fetch('/api/mentorship/').then(r => r.json()).then(setRequests)
       } else {
         const error = await response.json()
         alert('Error: ' + (error.error || 'Failed to update request'))
@@ -140,6 +139,18 @@ export default function Mentorship() {
               </div>
 
               <div className="form-group">
+                <label className="form-label">Subject</label>
+                <input
+                  type="text"
+                  value={newRequest.subject}
+                  onChange={(e) => setNewRequest({...newRequest, subject: e.target.value})}
+                  className="form-input"
+                  placeholder="e.g., Career guidance in software engineering"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
                 <label className="form-label">Your Message</label>
                 <textarea
                   value={newRequest.message}
@@ -147,29 +158,6 @@ export default function Mentorship() {
                   className="form-input"
                   rows="4"
                   placeholder="Tell the mentor about yourself and what you hope to achieve..."
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Preferred Meeting Time</label>
-                <input
-                  type="text"
-                  value={newRequest.preferred_time}
-                  onChange={(e) => setNewRequest({...newRequest, preferred_time: e.target.value})}
-                  className="form-input"
-                  placeholder="e.g., Weekends, Evenings after 6 PM"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Career Goals</label>
-                <textarea
-                  value={newRequest.goals}
-                  onChange={(e) => setNewRequest({...newRequest, goals: e.target.value})}
-                  className="form-input"
-                  rows="3"
-                  placeholder="Describe your career goals and areas where you need guidance..."
                 />
               </div>
 
@@ -256,20 +244,12 @@ export default function Mentorship() {
                 </div>
                 
                 <p style={{ margin: '0 0 12px 0', color: '#333' }}>
-                  <strong>Message:</strong> {request.message}
+                  <strong>Subject:</strong> {request.subject}
                 </p>
                 
-                {request.preferred_time && (
-                  <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                    <strong>Preferred Time:</strong> {request.preferred_time}
-                  </p>
-                )}
-                
-                {request.goals && (
-                  <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                    <strong>Goals:</strong> {request.goals}
-                  </p>
-                )}
+                <p style={{ margin: '0 0 12px 0', color: '#333' }}>
+                  <strong>Message:</strong> {request.message}
+                </p>
 
                 {user.role === 'alumni' && request.status === 'pending' && (
                   <div style={{ display: 'flex', gap: '8px' }}>
