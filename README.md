@@ -1,24 +1,24 @@
-# Alumni Connect & Scholarship Support Platform
+# Alumni Connect (Dockerized Vite + Flask + MySQL)
 
-A comprehensive platform connecting alumni with current students for career guidance, job opportunities, scholarships, and mentorship. Built as a mini LinkedIn specifically for educational institutions.
+One-command local dev with Docker. Frontend: Vite + React 18. Backend: Flask. DB: MySQL 8.
 
-## 🎯 Project Overview
+## Quick start
 
-This platform addresses the lack of centralized alumni-student interaction by providing:
-- **Job & Internship Postings** by alumni
-- **Scholarship Opportunities** with eligibility tracking
-- **Mentorship Programs** for resume building, interview prep, and skill development
-- **Alumni-hosted Webinars** and networking events
-- **Success Stories** sharing and inspiration
-- **Direct Alumni-Student Communication**
+Prereqs: Docker Desktop running.
 
-## 🛠 Tech Stack
+```
+docker compose up --build
+```
 
-- **Frontend**: React.js with modern hooks and responsive design
-- **Backend**: Flask (Python) with RESTful APIs
-- **Database**: MySQL with optimized schema design
-- **Authentication**: JWT-based secure authentication
-- **Styling**: Modern CSS with responsive design
+Open:
+- Frontend: http://localhost:5173
+- Backend health: http://localhost:5000/api/health
+
+## Services
+- `new-frontend/` Vite React app hitting `/api/*`
+- `new-backend/` Flask app with CORS enabled
+- `db/init.sql` schema + seed
+- `docker-compose.yml` wires services
 
 ## 🚀 Features
 
@@ -51,28 +51,10 @@ This platform addresses the lack of centralized alumni-student interaction by pr
 - MySQL 8.0+
 - npm or yarn
 
-## 🔧 Installation & Setup
-
-### Quick Start (Single Command)
-
-For new developers, you can get the entire application running with just one command:
-
-```bash
-git clone <repository-url>
-cd alumni-connect-platform
-
-# Create your environment file first
-cp backend/.env.example backend/.env
-# Edit backend/.env with your MySQL password
-
-# Start everything with one command
-npm start
+## Stop
 ```
-
-This single command will:
-- Install all dependencies (Node.js and Python)
-- Set up and seed the MySQL database
-- Start both frontend and backend servers
+docker compose down
+```
 
 ### Manual Setup (Alternative)
 
@@ -100,10 +82,10 @@ DATABASE_NAME=alumni_connect
 JWT_SECRET_KEY=your_jwt_secret_key_here
 ```
 
-#### 3. Install Dependencies
-```bash
-npm run install-deps
-```
+Env defaults:
+- DB: alumni_connect
+- User: alumni_user / alumni_pass
+Override via compose env if needed.
 
 #### 4. Database Setup
 ```bash
@@ -170,35 +152,12 @@ The setup script includes automatic health checks:
 - Backend runs on `http://localhost:5000`
 - Ensure these ports are available
 
-## 📁 Project Structure
-
+## Project Structure
 ```
-alumni-connect-platform/
-├── client/                 # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── pages/         # Page components
-│   │   ├── context/       # React context for state management
-│   │   ├── services/      # API service functions
-│   │   ├── utils/         # Utility functions
-│   │   └── styles/        # CSS styles
-│   ├── package.json
-│   └── .env
-├── server/                # Flask backend
-│   ├── app/
-│   │   ├── models/        # Database models
-│   │   ├── routes/        # API routes
-│   │   ├── utils/         # Utility functions
-│   │   └── __init__.py
-│   ├── requirements.txt
-│   ├── run.py
-│   └── .env
-├── database/              # Database schema and migrations
-│   ├── schema.sql
-│   └── seed_data.sql
-├── README.md
-└── package.json
+new-frontend/
+new-backend/
+db/init.sql
+docker-compose.yml
 ```
 
 ## 🔗 API Endpoints
