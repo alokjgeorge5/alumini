@@ -39,62 +39,66 @@ export default function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '100px auto', padding: '20px' }}>
-      <h1>Alumni Connect - Login</h1>
-      
-      <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
-        {error && (
-          <div style={{ color: 'red', marginBottom: '10px', padding: '10px', border: '1px solid red', borderRadius: '4px' }}>
-            {error}
-          </div>
-        )}
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-header">
+          <div className="login-logo">Alumni Connect</div>
+          <div className="login-subtitle">Connect with your professional network</div>
+        </div>
         
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', fontSize: '16px', border: '1px solid #ccc', borderRadius: '4px' }}
-            placeholder="alice@alumni.edu"
-          />
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+          
+          <div className="form-group">
+            <label className="form-label">Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="form-input"
+              placeholder="alice@alumni.edu"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="form-input"
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={loading}
+            className={`btn btn-primary w-full ${loading ? 'loading' : ''}`}
+            style={{ width: '100%' }}
+          >
+            {loading ? (
+              <>
+                <div className="spinner"></div>
+                Signing in...
+              </>
+            ) : (
+              'Sign In'
+            )}
+          </button>
+        </form>
+
+        <div className="demo-accounts">
+          <div className="demo-title">Demo Accounts</div>
+          <div className="demo-account">👨‍💼 Alumni: alice@alumni.edu / password123</div>
+          <div className="demo-account">👨‍🎓 Student: sarah@student.edu / password123</div>
         </div>
-
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', fontSize: '16px', border: '1px solid #ccc', borderRadius: '4px' }}
-            placeholder="password123"
-          />
-        </div>
-
-        <button 
-          type="submit" 
-          disabled={loading}
-          style={{ 
-            width: '100%', 
-            padding: '10px', 
-            fontSize: '16px', 
-            backgroundColor: loading ? '#ccc' : '#007bff', 
-            color: 'white', 
-            border: 'none',
-            borderRadius: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer' 
-          }}
-        >
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-
-      <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
-        <strong>Demo Accounts:</strong>
-        <p style={{ margin: '5px 0' }}>Alumni: alice@alumni.edu / password123</p>
-        <p style={{ margin: '5px 0' }}>Student: sarah@student.edu / password123</p>
       </div>
     </div>
   );
