@@ -20,6 +20,8 @@ def create_app() -> Flask:
     from .routes.applications import bp as applications_bp
     from .routes.messages import bp as messages_bp
     from .routes.stories import bp as stories_bp
+    from .routes.search import bp as search_bp
+    from .routes.admin import bp as admin_bp
 
     app.register_blueprint(health_bp, url_prefix="/api")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -30,6 +32,8 @@ def create_app() -> Flask:
     app.register_blueprint(applications_bp, url_prefix="/api/applications")
     app.register_blueprint(messages_bp, url_prefix="/api/messages")
     app.register_blueprint(stories_bp, url_prefix="/api/stories")
+    app.register_blueprint(search_bp, url_prefix="/api/search")
+    app.register_blueprint(admin_bp, url_prefix="/api/admin")
 
     return app
 

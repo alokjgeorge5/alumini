@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models import get_engine
+from ..middleware import alumni_required, admin_required
 from sqlalchemy import text
 
 bp = Blueprint("opportunities", __name__)
@@ -42,13 +43,10 @@ def list_opportunities():
 
 
 @bp.post("/")
-@jwt_required()
+@alumni_required
 def create_opportunity():
     current_user = get_jwt_identity()
     data = request.get_json()
-    
-    if current_user["role"] != "alumni":
-        return jsonify({"error": "Only alumni can post opportunities"}), 403
     
     engine = get_engine()
     try:
@@ -81,18 +79,18 @@ def get_opportunity(opportunity_id):
     try:
         with engine.connect() as conn:
             result = conn.execute(text("""
-                SELECT o.id, o.title, o.company, o.description, o.requirements, 
-                       o.location, o.salary_range, o.type, o.created_at,
+                SELECT o.id, o.title, o.company, o.description, o.requirements,
+                       o.location, o.salary_range, o.type, o.created_at, o.posted_by,
                        u.name as posted_by_name, u.email as posted_by_email
                 FROM opportunities o
                 LEFT JOIN users u ON o.posted_by = u.id
                 WHERE o.id = :opportunity_id AND o.is_active = TRUE
             """), {"opportunity_id": opportunity_id})
-            
+
             opportunity = result.fetchone()
             if not opportunity:
                 return jsonify({"error": "Opportunity not found"}), 404
-            
+
             return jsonify({
                 "id": opportunity.id,
                 "title": opportunity.title,
@@ -102,10 +100,83 @@ def get_opportunity(opportunity_id):
                 "location": opportunity.location,
                 "salary_range": opportunity.salary_range,
                 "type": opportunity.type,
+                "posted_by": opportunity.posted_by,
                 "posted_by_name": opportunity.posted_by_name,
                 "posted_by_email": opportunity.posted_by_email,
                 "created_at": opportunity.created_at.isoformat() if opportunity.created_at else None
             }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@bp.put("/<int:opportunity_id>")
+@alumni_required
+def update_opportunity(opportunity_id):
+    current_user = get_jwt_identity()
+    data = request.get_json()
+
+    engine = get_engine()
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT posted_by FROM opportunities WHERE id = :opportunity_id
+            """), {"opportunity_id": opportunity_id})
+
+            opportunity = result.fetchone()
+            if not opportunity:
+                return jsonify({"error": "Opportunity not found"}), 404
+
+            if opportunity.posted_by != current_user["id"] and current_user["role"] != "admin":
+                return jsonify({"error": "You can only update your own opportunities"}), 403
+
+            conn.execute(text("""
+                UPDATE opportunities SET
+                    title = :title, company = :company, description = :description,
+                    requirements = :requirements, location = :location,
+                    salary_range = :salary_range, type = :type
+                WHERE id = :opportunity_id
+            """), {
+                "opportunity_id": opportunity_id,
+                "title": data.get("title"),
+                "company": data.get("company"),
+                "description": data.get("description"),
+                "requirements": data.get("requirements"),
+                "location": data.get("location"),
+                "salary_range": data.get("salary_range"),
+                "type": data.get("type")
+            })
+            conn.commit()
+
+            return jsonify({"message": "Opportunity updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@bp.delete("/<int:opportunity_id>")
+@alumni_required
+def delete_opportunity(opportunity_id):
+    current_user = get_jwt_identity()
+
+    engine = get_engine()
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT posted_by FROM opportunities WHERE id = :opportunity_id
+            """), {"opportunity_id": opportunity_id})
+
+            opportunity = result.fetchone()
+            if not opportunity:
+                return jsonify({"error": "Opportunity not found"}), 404
+
+            if opportunity.posted_by != current_user["id"] and current_user["role"] != "admin":
+                return jsonify({"error": "You can only delete your own opportunities"}), 403
+
+            conn.execute(text("""
+                UPDATE opportunities SET is_active = FALSE WHERE id = :opportunity_id
+            """), {"opportunity_id": opportunity_id})
+            conn.commit()
+
+            return jsonify({"message": "Opportunity deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
