@@ -1,10 +1,11 @@
-﻿import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Home from './pages/Home'
 import Mentorship from './pages/Mentorship'
 import Opportunities from './pages/Opportunities'
 import Stories from './pages/Stories'
 import Login from './pages/Login'
+import AdminDashboard from './pages/AdminDashboard'
 
 function Sidebar() {
   const location = useLocation()
@@ -14,7 +15,8 @@ function Sidebar() {
     { path: '/', label: 'Dashboard', icon: '🏠' },
     { path: '/opportunities', label: 'Opportunities', icon: '💼' },
     { path: '/mentorship', label: 'Mentorship', icon: '🤝' },
-    { path: '/stories', label: 'Stories', icon: '📖' }
+    { path: '/stories', label: 'Stories', icon: '📖' },
+    ...(user.role === 'admin' ? [{ path: '/admin', label: 'Admin', icon: '👑' }] : [])
   ]
 
   return (
@@ -81,6 +83,14 @@ function Header() {
 }
 
 function ProtectedApp() {
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const location = useLocation()
+
+  // Redirect to home if trying to access admin without admin role
+  if (location.pathname.startsWith('/admin') && user.role !== 'admin') {
+    return <Navigate to="/" />
+  }
+
   return (
     <div className="main-layout">
       <Sidebar />
@@ -91,6 +101,7 @@ function ProtectedApp() {
           <Route path="/mentorship" element={<Mentorship />} />
           <Route path="/opportunities" element={<Opportunities />} />
           <Route path="/stories" element={<Stories />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </div>
     </div>
